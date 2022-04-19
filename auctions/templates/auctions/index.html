@@ -3,5 +3,23 @@
 {% block body %}
     <h2>Active Listings</h2>
 
-    TODO
+    <div class="container-fluid">
+        {% for list in listings %}
+        <div class="row border">
+            <div class="col-md-4">
+            {% if list.imageUrl %}
+                <img src="{{ list.imageUrl.url }}" width="100%">
+            {% endif %}
+            </div>
+            <div class="col-md-8">
+                <h3>{{ list.title }}</h3>
+                <h4><strong>Price: </strong>{{ list.currentPrice }}</h4>
+                <h5>{{ list.description }}</h5>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+
 {% endblock %}

@@ -66,6 +66,16 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
+@login_required
+def img(request, imgurl):
+    return HttpResponseRedirect(reverse("static", args=(imgurl,)))
+
+
+@login_required
+def static():
+    pass
+
 @login_required
 def create(request):
     if request.method == "POST":
