@@ -5,15 +5,15 @@
 
     <div class="container-fluid">
         {% for list in listings %}
-        <div class="row border">
-            <div class="col-md-4">
-            {% if list.imageUrl %}
-                <img src="{{ list.imageUrl.url }}" width="100%">
-            {% endif %}
+        <div class="row border" style="margin-top: 8px; height: 250px;">
+            <div class="col-md-4" style="text-align: center">
+                {% if list.imageUrl %}
+                <img src="{{ list.imageUrl.url }}" style="max-height:250px">
+                {% endif %}
             </div>
             <div class="col-md-8">
-                <h3>{{ list.title }}</h3>
-                <h4><strong>Price: </strong>{{ list.currentPrice }}</h4>
+                <h3 style="padding-top: 10px;">{{ list.title }}</h3>
+                <h5><strong>Price: </strong>&yen;{{ list.currentPrice }}</h5>
                 <h5>{{ list.description }}</h5>
             </div>
         </div>
