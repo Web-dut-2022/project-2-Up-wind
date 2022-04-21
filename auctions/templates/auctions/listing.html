@@ -1,0 +1,44 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Listing: {{ item.title }}</h2>
+    
+    {% if item.image %}
+        <img src="{{ item.image.url }}" style="max-height:400px">
+    {% endif %}
+    
+    <div class="text-body">{{ item.description }}</div>
+    <h3 style="margin-top: 5px;">&yen;{{ item.currentPrice }}</h3>
+    
+    <div class="text-body">
+        {% if bidCount %}
+            {{ bidcount }} bid(s) so far.
+        {% else %}
+            No bid yet.
+        {% endif %}
+    </div>
+    
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <input class="form-control" type="text" name="bid" placeholder="bid">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Place bid">
+    </form>
+
+    <h4 style="margin-top: 10px;">Details</h4>
+    <ul>
+        <li>Listed by: {{ item.listedBy.username }}</li>
+        <li>Category: {{ item.get_category_display }}</li>
+    </ul>
+
+    <h4 style="margin-top: 10px;">Comments</h4>
+    <ul>
+        {% if comments %}
+
+        {% else %}
+        <li>No comments yet.</li>
+        {% endif %}
+    </ul>
+
+{% endblock %}

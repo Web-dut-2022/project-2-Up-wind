@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import Listing, User
+from .models import Biding, Listing, User
 
 
 def index(request):
@@ -96,9 +96,30 @@ def create(request):
             return render(request, "auctions/create.html", {
                 "message": "Something wrong!"
             })
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("listing", args=(item.id,)))
     else:
         context = {
             "categories": Listing.CATEGORY_CHOICES
         }
         return render(request, "auctions/create.html", context)
+
+
+@login_required
+def listing(request, listId):
+    item = Listing.objects.get(pk=listId)
+    bidConut = item.biding_set.count()
+    bidList = item.biding_set.all()
+    commentList = item.comments_set.all()
+    user = get_user(request)
+    if(item.listedBy == user):
+        creater=True
+    else:
+        creater=False
+    context = {
+        "item": item,
+        "creater": creater,
+        "bidCount": bidConut,
+        "bids": bidList,
+        "comments": commentList
+    }
+    return render(request, "auctions/listing.html", context)
