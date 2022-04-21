@@ -17,16 +17,20 @@ class Listing(models.Model):
     description = models.CharField(max_length=128)
     startingBid = models.DecimalField(max_digits=8, decimal_places=2)
     currentPrice = models.DecimalField(max_digits=8, decimal_places=2)
-    imageUrl = models.ImageField(upload_to='img', blank=True)
+    image = models.ImageField(upload_to='img', blank=True)
     category = models.CharField(max_length=2, blank=True, choices=CATEGORY_CHOICES)
+    listedBy = models.ForeignKey(User, on_delete=models.CASCADE)
+    isActive = models.BooleanField()
 
 
 class Biding(models.Model):
+    bid = models.DecimalField(max_digits=8, decimal_places=2)
     bider = models.ForeignKey(User, on_delete=models.CASCADE)
-    bidPrice = models.DecimalField(max_digits=8, decimal_places=2)
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE)
 
 
 class Comments(models.Model):
+    comment = models.CharField(max_length=128)
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
-    desciption = models.CharField(max_length=128)
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE)
 

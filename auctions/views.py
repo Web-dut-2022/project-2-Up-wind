@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -83,12 +83,14 @@ def create(request):
         des = request.POST["description"]
         startBid = request.POST["startingBid"]
         current = startBid
-        image = request.FILES.get("img")
+        img = request.FILES.get("img")
         cate = request.POST["category"]
+        user = get_user(request)
 
         try:
             item = Listing(title=title, description=des, startingBid=startBid,
-                    currentPrice=current, imageUrl=image, category=cate)
+                    currentPrice=current, image=img, category=cate,
+                    listedBy=user, isActive=True)
             item.save()
         except:
             return render(request, "auctions/create.html", {
