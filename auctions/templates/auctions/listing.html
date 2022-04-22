@@ -1,20 +1,32 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Listing: {{ item.title }}</h2>
+    <h2>Listing: {{ item.title }}
+        {% if watched %}
+            <small><span class='badge badge-secondary'>watchlist</span></small>
+        {% endif %}
+    </h2>
     
+    {% if not watched %}
+        <form action="{% url 'watch' item.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="watch" value="yes">
+            <input class="btn btn-primary" type="submit" value="Add to Watchlist">
+        </form>
+    {% endif %}
+
     {% if item.image %}
-        <img src="{{ item.image.url }}" style="max-height:400px">
+        <img src="{{ item.image.url }}" style="max-height:400px; margin-top: 10px;">
     {% endif %}
     
-    <div class="text-body">{{ item.description }}</div>
+    <div class="text-body" style="margin-top: 5px;">{{ item.description }}</div>
     <h3 style="margin-top: 5px;">&yen;{{ item.currentPrice }}</h3>
     
     <div class="text-body">
         {% if bidCount %}
             {{ bidcount }} bid(s) so far.
         {% else %}
-            No bid yet.
+            No bid yet. This is the starting bid.
         {% endif %}
     </div>
     
@@ -26,6 +38,14 @@
         <input class="btn btn-primary" type="submit" value="Place bid">
     </form>
 
+    {% if watched %}
+        <form action="{% url 'watch' item.id %}" method="POST" style="margin-top: 5px;">
+            {% csrf_token %}
+            <input type="hidden" name="watch" value="no">
+            <input class="btn btn-primary" type="submit" value="Remove from Watchlist">
+        </form>
+    {% endif %}
+    
     <h4 style="margin-top: 10px;">Details</h4>
     <ul>
         <li>Listed by: {{ item.listedBy.username }}</li>
@@ -37,7 +57,7 @@
         {% if comments %}
 
         {% else %}
-        <li>No comments yet.</li>
+            <li>No comments yet.</li>
         {% endif %}
     </ul>
 

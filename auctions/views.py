@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import Biding, Listing, User
+from .models import Biding, Listing, User, Watch
 
 
 def index(request):
     context = {
-        "listings": Listing.objects.all()
+        "listings": Listing.objects.all(),
     }
     return render(request, "auctions/index.html", context)
 
@@ -38,7 +38,6 @@ def login_view(request):
     else:
         if "next" in request.GET:
             next_url = request.GET["next"]
-            print(next_url)
             context = {
                 "next": next_url
             }
@@ -73,6 +72,7 @@ def register(request):
                 "message": "Username already taken."
             })
         login(request, user)
+        Watch(user).save()
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
@@ -120,15 +120,41 @@ def listing(request, listId):
     bidList = item.biding_set.all()
     commentList = item.comments_set.all()
     user = get_user(request)
-    if(item.listedBy == user):
+    creater=False
+    watched=False
+    if item.listedBy == user:
         creater=True
-    else:
-        creater=False
+    if user.watch.list.contains(item):
+        watched=True
+    watchCount = user.watch.list.count()
     context = {
         "item": item,
+        "watched": watched,
+        "watchCount": watchCount,
         "creater": creater,
         "bidCount": bidConut,
         "bids": bidList,
         "comments": commentList
     }
     return render(request, "auctions/listing.html", context)
+
+@login_required(login_url='/login')
+def watch(request, listId):
+    item = Listing.objects.get(pk=listId)
+    user = get_user(request)
+    if request.POST["watch"]=="yes":
+        user.watch.list.add(item)
+    else:
+        user.watch.list.remove(item)
+    return HttpResponseRedirect(reverse("listing", args=(item.id,)))
+
+
+@login_required(login_url='/login')
+def watchlist(request):
+    user = get_user(request)
+    context = {
+        "listings": user.watch.list.all(),
+        "watchCount": user.watch.list.count()
+    }
+    return render(request, "auctions/watchlist.html", context)
+    

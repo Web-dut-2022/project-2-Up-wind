@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.deletion import CASCADE
 
 
 class User(AbstractUser):
@@ -34,3 +35,7 @@ class Comments(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.ForeignKey(Listing, on_delete=models.CASCADE)
 
+
+class Watch(models.Model):
+    watcher = models.OneToOneField(User, on_delete=models.CASCADE)
+    list = models.ManyToManyField(Listing, blank=True)
