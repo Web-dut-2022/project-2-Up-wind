@@ -26,12 +26,23 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
+            
+            if "next" in request.POST:
+                next_url = request.POST["next"]
+                return HttpResponseRedirect(next_url)
             return HttpResponseRedirect(reverse("index"))
         else:
             return render(request, "auctions/login.html", {
                 "message": "Invalid username and/or password."
             })
     else:
+        if "next" in request.GET:
+            next_url = request.GET["next"]
+            print(next_url)
+            context = {
+                "next": next_url
+            }
+            return render(request, "auctions/login.html", context)
         return render(request, "auctions/login.html")
 
 
@@ -67,16 +78,14 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-@login_required
 def img(request, imgurl):
     return HttpResponseRedirect(reverse("static", args=(imgurl,)))
 
 
-@login_required
 def static():
     pass
 
-@login_required
+@login_required(login_url='/login')
 def create(request):
     if request.method == "POST":
         title = request.POST["title"]
@@ -104,7 +113,7 @@ def create(request):
         return render(request, "auctions/create.html", context)
 
 
-@login_required
+@login_required(login_url='/login')
 def listing(request, listId):
     item = Listing.objects.get(pk=listId)
     bidConut = item.biding_set.count()
