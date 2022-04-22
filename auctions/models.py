@@ -17,10 +17,11 @@ class Listing(models.Model):
     title = models.CharField(max_length=64)
     description = models.CharField(max_length=128)
     startingBid = models.DecimalField(max_digits=8, decimal_places=2)
-    currentPrice = models.DecimalField(max_digits=8, decimal_places=2)
-    image = models.ImageField(upload_to='img', blank=True)
+    currentPrice = models.DecimalField(max_digits=8, decimal_places=2, blank=True)
+    image = models.ImageField(upload_to='static', blank=True)
     category = models.CharField(max_length=2, blank=True, choices=CATEGORY_CHOICES)
-    listedBy = models.ForeignKey(User, on_delete=models.CASCADE)
+    listedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name='creater')
+    winner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE, related_name='winner')
     isActive = models.BooleanField()
 
 

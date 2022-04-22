@@ -72,14 +72,10 @@ def register(request):
                 "message": "Username already taken."
             })
         login(request, user)
-        Watch(user).save()
+        Watch(watcher=user).save()
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
-
-
-def img(request, imgurl):
-    return HttpResponseRedirect(reverse("static", args=(imgurl,)))
 
 
 def static():
@@ -96,15 +92,10 @@ def create(request):
         cate = request.POST["category"]
         user = get_user(request)
 
-        try:
-            item = Listing(title=title, description=des, startingBid=startBid,
-                    currentPrice=current, image=img, category=cate,
-                    listedBy=user, isActive=True)
-            item.save()
-        except:
-            return render(request, "auctions/create.html", {
-                "message": "Something wrong!"
-            })
+        item = Listing(title=title, description=des, startingBid=startBid,
+                currentPrice=current, image=img, category=cate,
+                listedBy=user, isActive=True)
+        item.save()
         return HttpResponseRedirect(reverse("listing", args=(item.id,)))
     else:
         context = {
