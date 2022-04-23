@@ -5,12 +5,12 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import Biding, Listing, User, Watch
+from .models import Biding, Comments, Listing, User, Watch
 
 
 def index(request):
     context = {
-        "listings": Listing.objects.all(),
+        "listings": Listing.objects.filter(isActive=True),
     }
     return render(request, "auctions/index.html", context)
 
@@ -78,9 +78,6 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-def static():
-    pass
-
 @login_required(login_url='/login')
 def create(request):
     if request.method == "POST":
@@ -129,6 +126,7 @@ def listing(request, listId):
     }
     return render(request, "auctions/listing.html", context)
 
+
 @login_required(login_url='/login')
 def watch(request, listId):
     item = Listing.objects.get(pk=listId)
@@ -148,4 +146,56 @@ def watchlist(request):
         "watchCount": user.watch.list.count()
     }
     return render(request, "auctions/watchlist.html", context)
-    
+
+
+@login_required(login_url='/login')
+def bid(request, listId):
+    if request.method == "POST":
+        item = Listing.objects.get(pk=listId)
+        user = get_user(request)
+        bid = float(request.POST["bid"])
+        if not item.biding_set.count():
+            if bid >= item.startingBid:
+                pass
+            else:
+                context = {
+                    "message": "Your bid must be at least as large as the starting bid!",
+                    "id": item.id
+                }
+                return render(request, "auctions/error.html", context)
+        else:
+            if bid > item.currentPrice:
+                pass
+            else:
+                context = {
+                    "message": "Your bid must be higher than the current price!",
+                    "id": item.id
+                }
+                return render(request, "auctions/error.html", context)
+
+        b = Biding(bid=bid, bider=user, item=item)
+        item.currentPrice = bid
+        item.save()
+        b.save()
+
+        return HttpResponseRedirect(reverse("listing", args=(item.id,)))
+
+
+@login_required(login_url='/login')
+def close(request, listId):
+    item = Listing.objects.get(pk=listId)
+    bidLog = item.biding_set.latest('bid')
+    winner = bidLog.bider
+    item.winner = winner
+    item.isActive = False
+    item.save()
+    return HttpResponseRedirect(reverse("listing", args=(item.id,)))
+
+
+@login_required(login_url='/login')
+def comment(request, listId):
+    item = Listing.objects.get(pk=listId)
+    user = get_user(request)
+    comment = request.POST["comment"]
+    Comments(comment=comment, commenter=user, item=item).save()
+    return HttpResponseRedirect(reverse("listing", args=(item.id,)))

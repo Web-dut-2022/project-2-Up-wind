@@ -20,23 +20,40 @@
     {% endif %}
     
     <div class="text-body" style="margin-top: 5px;">{{ item.description }}</div>
-    <h3 style="margin-top: 5px;">&yen;{{ item.currentPrice }}</h3>
-    
-    <div class="text-body">
-        {% if bidCount %}
-            {{ bidcount }} bid(s) so far.
-        {% else %}
-            No bid yet. This is the starting bid.
-        {% endif %}
-    </div>
-    
-    <form action="" method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <input class="form-control" type="text" name="bid" placeholder="bid">
+
+    {% if item.isActive %}
+        <h3 style="margin-top: 5px;">&yen;{{ item.currentPrice }}</h3>
+        
+        <div class="text-body">
+            {% if bidCount %}
+                {{ bidCount }} bid(s) so far.
+            {% else %}
+                No bid yet. This is the starting bid.
+            {% endif %}
         </div>
-        <input class="btn btn-primary" type="submit" value="Place bid">
-    </form>
+        {% if user == item.listedBy %}
+            <form action="{% url 'close' item.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="close" value="yes">
+                <input class="btn btn-danger" type="submit" value="Close">
+            </form>
+        {% else %}
+            <form action="{% url 'bid' item.id %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input class="form-control" type="text" name="bid" placeholder="bid">
+                </div>
+                <input class="btn btn-primary" type="submit" value="Place bid">
+            </form>
+        {% endif %}
+    {% else %}
+        {% if user == item.winner %}
+            <h3 style="margin-top: 5px;">You are the Winner!</h3>
+        {% else %}
+            <h3 style="margin-top: 5px;">Winner: {{ item.winner }}</h3>
+        {% endif %}
+    
+    {% endif %}
 
     {% if watched %}
         <form action="{% url 'watch' item.id %}" method="POST" style="margin-top: 5px;">
@@ -55,10 +72,19 @@
     <h4 style="margin-top: 10px;">Comments</h4>
     <ul>
         {% if comments %}
-
+            {% for comment in comments %}
+                <li>{{ comment.commenter.username }}: {{ comment.comment }}</li>
+            {% endfor %}
         {% else %}
             <li>No comments yet.</li>
         {% endif %}
     </ul>
+    <form action="{% url 'comment' item.id %}" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <input class="form-control" type="text" name="comment" placeholder="Write your comment">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Comment">
+    </form>
 
 {% endblock %}
