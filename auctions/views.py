@@ -199,3 +199,16 @@ def comment(request, listId):
     comment = request.POST["comment"]
     Comments(comment=comment, commenter=user, item=item).save()
     return HttpResponseRedirect(reverse("listing", args=(item.id,)))
+
+def categories(request):
+    context = {
+        'categories': Listing.CATEGORY_CHOICES
+    }
+    return render(request, "auctions/categories.html", context)
+
+
+def category(request, cateID):
+    context = {
+        'listings': Listing.objects.filter(category=cateID)
+    }
+    return render(request, "auctions/index.html", context)
