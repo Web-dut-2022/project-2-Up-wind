@@ -184,11 +184,16 @@ def bid(request, listId):
 @login_required(login_url='/login')
 def close(request, listId):
     item = Listing.objects.get(pk=listId)
-    bidLog = item.biding_set.latest('bid')
-    winner = bidLog.bider
-    item.winner = winner
-    item.isActive = False
-    item.save()
+    if not item.biding_set.count():
+        item.winner = get_user(request)
+        item.isActive = False
+        item.save()
+    else:
+        bidLog = item.biding_set.latest('bid')
+        winner = bidLog.bider
+        item.winner = winner
+        item.isActive = False
+        item.save()
     return HttpResponseRedirect(reverse("listing", args=(item.id,)))
 
 
@@ -208,7 +213,8 @@ def categories(request):
 
 
 def category(request, cateID):
+    
     context = {
         'listings': Listing.objects.filter(category=cateID)
     }
-    return render(request, "auctions/index.html", context)
+    return render(request, "auctions/category.html", context)

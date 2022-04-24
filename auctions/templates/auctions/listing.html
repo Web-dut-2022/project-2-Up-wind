@@ -48,7 +48,11 @@
         {% endif %}
     {% else %}
         {% if user == item.winner %}
-            <h3 style="margin-top: 5px;">You are the Winner!</h3>
+            {% if user == item.listedBy %}
+                <h3 style="margin-top: 5px;">You closed the Bidding!</h3>
+            {% else %}
+                <h3 style="margin-top: 5px;">You are the Winner!</h3>
+            {% endif %}
         {% else %}
             <h3 style="margin-top: 5px;">Winner: {{ item.winner }}</h3>
         {% endif %}
